@@ -1,53 +1,52 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import "./Signup.css"
-import Header from "../Partials/Header/Header";
-import Footer from "../Partials/Footer/Footer";
+import Footer from '../Partials/Footer/Footer';
+import Header from '../Partials/Header/Header';
+import "./Login.css"
 
-const Signup = () => {
+const Login = () => {
   return (
     <div>
-        <Header />
-        {/* start of signUP wrapper */}
-      <div className="signup-wrapper">
+        <Header/>
+        {/* start of login component */}
+        <div className="signup-wrapper">
         <form action="" method="post">
           <div className="signup-form">
-            <div className="signup-form-row form-title">SignUp</div>
-            <div className="signup-form-row">
+            <div className="signup-form-row form-title">Login</div>
+            {/* <div className="signup-form-row">
               <input type="text" placeholder="First name" />
               <input type="text" placeholder="Last name" />
-            </div>
+            </div> */}
             <div className="signup-form-row">
               <input type="email" placeholder="example@emal.com" />
             </div>
             <div className="signup-form-row">
               <input type="password" placeholder="password" />
-              <input type="password" placeholder="confirm password" />
+              {/* <input type="password" placeholder="confirm password" /> */}
             </div>
-            <div className="signup-form-row">
+            {/* <div className="signup-form-row">
               <label For="termsCondition">
                 <input type="checkbox" id="termsCondition" />I agree to the
                 <Link to="/termsCondition"> Terms and Conditions</Link>
               </label>
-            </div>
+            </div> */}
             <div className="signup-form-row">
-              <button>Create Account</button>
+              <button>Login</button>
             </div>
             <div className="signup-form-row">
               <i>
-              Already have an account? &nbsp;
-              <Link to="/login">Login here</Link>
+              Dont have an account? &nbsp;
+              <Link to="/signup">Create Account here</Link>
               </i>
              
             </div>
           </div>
         </form>
       </div>
-      {/* end of signUP wrapper*/}
-        <Footer />
-
+        {/* end of login component */}
+        <Footer/>
     </div>
   )
 }
 
-export default Signup
+export default Login
