@@ -68,10 +68,10 @@ const Profile = () => {
                         </div>
 
                         <div className='contact_box_action_grp'>
-                            <button className='edit_btn'>
+                            <Link to="/profile/contact/edit" className='edit_btn'>
                                 <FaEdit/>
                                 Edit
-                            </button>
+                            </Link>
 
                             <button className='delete_btn'>
                                 <FaTrash/>
