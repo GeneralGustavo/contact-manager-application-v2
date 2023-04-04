@@ -1,0 +1,18 @@
+.contact-wrapper{
+        display: grid;
+        text-align: center;
+        gap: 1rem;
+        /* align-items: center; */
+        background-color: #3f3f3f;
+        /* background-color: blue; */
+        color: white;
+        padding: 2rem;
+        /* border-radius: 10rem 0 10rem 0; */
+        width: 70%;
+        margin: 0 auto;
+
+    }
+
+    .contact-head{
+        font-size: 24px;
+    }
