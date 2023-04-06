@@ -1,8 +1,42 @@
+const UserModel = require('../models/userModel');
+const bcrypt = require("bcrypt");
+
 // @define:register user
 // @route: /api/users/register
 // @privacy: public
 const registerUser = async(req, res) => {
-    res.json({message: "User created"});
+    const { first_name, last_name, email, phone, password} = req.body;
+
+    try {
+        // check if email already exists
+        const foundUser = await UserModel.find({email:email});
+
+        // if user found, 
+        if (foundUser) {
+            res.status(400).jason({message: "User already exsist"});
+            returen;
+        }
+
+        // if not found, create a new user
+        const newUser = await UserModel.create({
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            phone: phone,
+            password: '',
+        });
+
+
+        
+    } catch (error) {
+        res.status(500)
+        throw new Error(`Internal server error:${error}`);
+    }
+
+    res.json({
+        message: "User created!",
+        data: req.body,
+    });
 };
 
 // @define:login user
