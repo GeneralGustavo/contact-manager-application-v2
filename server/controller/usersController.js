@@ -1,6 +1,6 @@
-const userModel = require('../models/userModel');
 const UserModel = require('../models/userModel');
 const bcrypt = require("bcrypt");
+const jwt = require("jwt");
 
 // @define:register user
 // @route: /api/users/register
@@ -10,18 +10,18 @@ const registerUser = async(req, res) => {
 
     try {
         // check if email already exists
-        const foundUser = await UserModel.find({email:email});
+        const foundUser = await UserModel.findOne({ email: email.toLowerCase() });
 
         // if user found, 
-        if (!foundUser) {
-            res.status(400).json({message: "User already exsist"});
+        if (foundUser) {
+            res.status(400).send({message: "User already exsist"});
             return;
         }
 
         // if not found, create a new user
 
         // create a salt
-        const salt = 10;
+        const salt = await bcrypt.genSalt(10);
 
         // hash password
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -31,7 +31,7 @@ const registerUser = async(req, res) => {
         const newUser = await UserModel.create({
             first_name: first_name,
             last_name: last_name,
-            email: email,
+            email: email.toLowerCase(),
             phone: phone,
             password: hashedPassword,
         });
@@ -41,7 +41,10 @@ const registerUser = async(req, res) => {
      if (!newUser) {
         res.status(400);
         throw new Error("Unable to create User");
+        return;
      } 
+
+     // send confirmation email to user
 
      // response to front-end
      res.status(201).json({
@@ -68,19 +71,29 @@ const loginUser = async(req, res) => {
     const { email, password } = req.body;
 
     try{
+        // check if email or password empty
+        if (!email || !password) {
+            res.status(400).send({message: "All Field Required!"});
+            return;
+        }
         // check if email exist
-        const foundEmail = await userModel.find({email:email });
+        const foundEmail = await UserModel.findOne({ email: email.toLowerCase() });
         // console.log(foundEmail);
 
-        const checkPassword = await bcrypt.compare( password, foundEmail.password );
-        console.log(checkPassword);
 
         //check if password match
-        // if( foundEmail && (await bcrypt.compare(password, foundEmail.password))) {
-        //     res.status(400).json({ message:"Invalid credentials"});
-        // }
+        if( !foundEmail || !(await bcrypt.compare(password, foundEmail.password))) {
+            res.status(400).json({ message:"Invalid credentials"});
+            return;
+        }
 
         // if loggin details are correct
+
+        // create a token
+        const token = jwt.sign(foundEmail._id, 'process.env.LOGIN_SECRET', {
+             expiersIn: "1d" 
+        });
+        req.session.save
         res.json({
             message: "User loggedIn",
             data: foundEmail
@@ -89,6 +102,7 @@ const loginUser = async(req, res) => {
         // res.json({message: "User loggedIn!"});
     } catch (error) {
         res.status(500).json({ message: error.message });
+        return;
     }
     
 }
@@ -97,28 +111,103 @@ const loginUser = async(req, res) => {
 // @route: /api/users/:id
 // @privacy: proected
 const getSingleUser = async(req, res) => {
-    res.json({message: "get single user!"});
+    //destructure or get id from params
+    const { id } = req.params;
+    try {
+        // fetch single user from database
+        const singleUser = await UserModel.findById(id);
+
+        // return single user to frontend
+        res.send(singleUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        return;
+    }
+
+    
 }
 
 // @define: all users
 // @route: /api/users
 // @privacy: proected
 const getAllUser = async(req, res) => {
-    res.json({message: "get All users!"});
+    try{
+        // fetch all users from DB
+        const allUsers = await UserModel.find();
+        
+        // send data to front end
+        res.send(allUsers);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        return;
+    }
+    
 }
 
 // @define: update single user
 // @route: /api/users/:id
 // @privacy: proected
 const updateSingleUser = async(req, res) => {
-    res.json({message: "update single user!"});
-}
+    //destructure or get id from params
+    const { id } = req.params;
+    const { first_name, last_name, phone } = req.body;
+
+    try {
+        // check if user exist 
+        const userExist = await UserModel.findById(id);
+
+        // if user dosent exist
+        if ( !userExist) {
+            res.status(404).send( "User not found");
+            return;
+        }
+
+        // console.log(`the value is : ${req.body?.first_name}`);
+
+        // update user details
+        const updatedUser = await UserModel.findByIdAndUpdate( id, {
+            first_name: req.body?.first_name,
+            last_name: req.body?.last_name,
+            phone: req.body?.phone,
+        }, { new: true }
+        );
+
+        // return updated user to frontend
+        res.send(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        return;
+    }
+};
 
 // @define: delete single user
 // @route: /api/users/:id
 // @privacy: proected
 const deleteSingleUser = async(req, res) => {
-    res.json({message: "delete single user!"});
+    // get id from params
+    const { id } = req.params;
+
+    try {
+        // check if user exist 
+        const userExist = await UserModel.findById(id);
+
+        // if user dosent exist
+        if ( !userExist) {
+            res.status(404).send( "User not found");
+            return;
+        }
+
+
+        // delete user here
+        const deletedUser = await UserModel.findByIdAndDelete(id);
+       
+
+        // return delete user to frontend
+        res.send(deletedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        return;
+    }
 };
 
 module.exports = { 
