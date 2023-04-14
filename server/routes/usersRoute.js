@@ -1,3 +1,4 @@
+// import Profile from '../../client/src/components/Profile/Profile'
 const express = require("express");
 const usersRoute = express.Router();
 
@@ -10,6 +11,8 @@ const {
     updateSingleUser,
     deleteSingleUser 
 } = require('../controller/usersController');
+
+const isAuth = require('../middlewares/isAuth');
 
 // @define:register user
 // @route: /api/users/register
@@ -27,25 +30,25 @@ usersRoute.post('/login', loginUser );
 // @route: /api/users
 // @privacy: proected
 // @method :GET
-usersRoute.get('/', getAllUser );
+usersRoute.get('/', isAuth, getAllUser );
 
-// @define: get single user
+// @define: get single user Profile
 // @route: /api/users/:id
 // @privacy: proected
 // @method :GET
-usersRoute.get('/:id', getSingleUser);
+usersRoute.get('/:id',isAuth, getSingleUser);
 
 // @define: update single user
 // @route: /api/users/:id
 // @privacy: proected
 // @method :PUT
-usersRoute.put('/:id', updateSingleUser);
+usersRoute.put('/:id', isAuth, updateSingleUser);
 
 // @define: delete single user
 // @route: /api/users/:id
 // @privacy: proected
 // @method :DELETE
-usersRoute.delete('/:id', deleteSingleUser);
+usersRoute.delete('/:id',isAuth, deleteSingleUser);
 
 
 module.exports = usersRoute;

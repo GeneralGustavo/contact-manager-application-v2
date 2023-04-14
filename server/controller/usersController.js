@@ -1,6 +1,6 @@
 const UserModel = require('../models/userModel');
 const bcrypt = require("bcrypt");
-const jwt = require("jwt");
+const jwt = require("jsonwebtoken");
 
 // @define:register user
 // @route: /api/users/register
@@ -90,13 +90,17 @@ const loginUser = async(req, res) => {
         // if loggin details are correct
 
         // create a token
-        const token = jwt.sign(foundEmail._id, 'process.env.LOGIN_SECRET', {
-             expiersIn: "1d" 
+        const token = jwt.sign({id: foundEmail._id}, process.env.LOGIN_SECRET, {
+             expiresIn: "1d",
         });
-        req.session.save
-        res.json({
-            message: "User loggedIn",
-            data: foundEmail
+        req.session.save ((err) =>{
+            if(err) {
+                res.status(500).send({ message: err.message });
+            return;
+            } else {
+                // sending token to back-end
+                res.status(200).send({token: token});
+            }
         });
 
         // res.json({message: "User loggedIn!"});
@@ -104,8 +108,7 @@ const loginUser = async(req, res) => {
         res.status(500).json({ message: error.message });
         return;
     }
-    
-}
+};
 
 // @define: get single user
 // @route: /api/users/:id
@@ -132,6 +135,12 @@ const getSingleUser = async(req, res) => {
 // @privacy: proected
 const getAllUser = async(req, res) => {
     try{
+        // if req.user.id is absent, return
+        if(!req.user.id) {
+            res.status(401).send({ message: "Unauthorized Access"});
+            return;
+        }
+
         // fetch all users from DB
         const allUsers = await UserModel.find();
         

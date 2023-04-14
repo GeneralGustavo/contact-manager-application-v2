@@ -4,7 +4,7 @@ const usersRoute = require("./routes/usersRoute");
 const contactsRoute = require("./routes/contactsRoute");
 const db_connection = require("./config/dbConnect");
 const session = require("express-session");
-const MongoDBStore = require("connect-mongodb-store")(session);
+const MongoDBStore = require("connect-mongodb-session")(session);
 const app = express();
 db_connection();
 
